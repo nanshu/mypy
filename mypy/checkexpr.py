@@ -701,8 +701,8 @@ class ExpressionChecker(ExpressionVisitor[Type]):
         elif isinstance(callee, UnionType):
             return self.check_union_call(callee, args, arg_kinds, arg_names, context, arg_messages)
         elif isinstance(callee, Instance):
-            call_function = analyze_member_access('__call__', callee, context,
-                                                  False, False, False, self.msg,
+            call_function = analyze_member_access('__call__', callee, context, is_lvalue=False,
+                                                  is_super=False, is_operator=True, msg=self.msg,
                                                   original_type=callee, chk=self.chk,
                                                   in_literal_context=self.is_literal_context())
             return self.check_call(call_function, args, arg_kinds, context, arg_names,
@@ -1264,7 +1264,8 @@ class ExpressionChecker(ExpressionVisitor[Type]):
                 self.msg.report_protocol_problems(original_caller_type, callee_type, context)
             if (isinstance(callee_type, CallableType) and
                     isinstance(original_caller_type, Instance)):
-                call = find_member('__call__', original_caller_type, original_caller_type)
+                call = find_member('__call__', original_caller_type, original_caller_type,
+                                   is_operator=True)
                 if call:
                     self.msg.note_call(original_caller_type, call, context)
 
